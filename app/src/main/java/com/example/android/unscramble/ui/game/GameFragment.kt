@@ -41,21 +41,16 @@ class GameFragment : Fragment() {
     }
 
     private fun onSubmitWord() {
-        val playerWord = binding.textInputEditText.text.toString()
-        if (viewModel.isUserWordCorrect(playerWord)) {
-            setErrorTextField(false)
-            if (!viewModel.nextWord()) {
-                showFinalScoreDialog()
-            }
-        } else {
-            setErrorTextField(true)
+        val wordCorrect = viewModel.isUserWordCorrect(binding.textInputEditText.text.toString())
+        enableErrorText(!wordCorrect)
+        if (wordCorrect && !viewModel.nextWord()) {
+            showFinalScoreDialog()
         }
     }
 
     private fun onSkipWord() {
-        if (viewModel.nextWord()) {
-            setErrorTextField(false)
-        } else {
+        enableErrorText(false)
+        if (!viewModel.nextWord()) {
             showFinalScoreDialog()
         }
     }
@@ -71,7 +66,7 @@ class GameFragment : Fragment() {
     }
 
     private fun restartGame() {
-        setErrorTextField(false)
+        enableErrorText(false)
         viewModel.reinitializeData()
     }
 
@@ -79,8 +74,8 @@ class GameFragment : Fragment() {
         activity?.finish()
     }
 
-    private fun setErrorTextField(error: Boolean) {
-        if (error) {
+    private fun enableErrorText(enabled: Boolean) {
+        if (enabled) {
             binding.textField.isErrorEnabled = true
             binding.textField.error = getString(R.string.try_again)
         } else {
