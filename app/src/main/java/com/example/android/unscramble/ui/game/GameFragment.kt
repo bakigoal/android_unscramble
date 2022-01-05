@@ -34,17 +34,16 @@ class GameFragment : Fragment() {
         // Setup a click listener for the Submit and Skip buttons.
         binding.submit.setOnClickListener { onSubmitWord() }
         binding.skip.setOnClickListener { onSkipWord() }
-        // Update the UI
-        updateNextWordOnScreen()
+        viewModel.currentScrambledWord.observe(viewLifecycleOwner, {
+            updateNextWordOnScreen(it)
+        })
     }
 
     private fun onSubmitWord() {
         val playerWord = binding.textInputEditText.text.toString()
         if (viewModel.isUserWordCorrect(playerWord)) {
             setErrorTextField(false)
-            if (viewModel.nextWord()) {
-                updateNextWordOnScreen()
-            } else {
+            if (!viewModel.nextWord()) {
                 showFinalScoreDialog()
             }
         } else {
@@ -55,7 +54,6 @@ class GameFragment : Fragment() {
     private fun onSkipWord() {
         if (viewModel.nextWord()) {
             setErrorTextField(false)
-            updateNextWordOnScreen()
         } else {
             showFinalScoreDialog()
         }
@@ -74,7 +72,6 @@ class GameFragment : Fragment() {
     private fun restartGame() {
         setErrorTextField(false)
         viewModel.reinitializeData()
-        updateNextWordOnScreen()
     }
 
     private fun exitGame() {
@@ -91,8 +88,8 @@ class GameFragment : Fragment() {
         }
     }
 
-    private fun updateNextWordOnScreen() {
-        binding.textViewUnscrambledWord.text = viewModel.currentScrambledWord
+    private fun updateNextWordOnScreen(currentScrambledWord: String) {
+        binding.textViewUnscrambledWord.text = currentScrambledWord
         binding.score.text = getString(R.string.score, viewModel.score)
         binding.wordCount.text = getString(R.string.word_count, viewModel.currentWordCount, MAX_NO_OF_WORDS)
     }
